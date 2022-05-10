@@ -1,1 +1,2 @@
-`npm i jsonwebtoken`
+- `npm i jsonwebtoken`
+- `npm i express cors mongodb dotenv`
