@@ -10,6 +10,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: 'Unauthorized request' });
+  }
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ message: 'Forbidden request' });
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
+
 app.get('/', (req, res) => {
   res.send('Server is running');
 });
@@ -21,7 +36,24 @@ app.post('/login', (req, res) => {
   // USE proper process for hashing and checking
   // After completing all authentication related verification, issue JWT token
   if (user.email === 'user@gmail.com' && user.password === '123456') {
+    const accessToken = jwt.sign(
+      {
+        email: user.email,
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '1h' }
+    );
+    res.send({ success: true, accessToken: accessToken });
+  } else {
+    res.status(401).send({ message: 'Invalid email or password' });
   }
+});
+
+app.get('/orders', verifyJWT, (req, res) => {
+  res.send([
+    { id: 1, item: 'sunglass' },
+    { id: 2, item: 'watch' },
+  ]);
 });
 
 app.listen(port, () => {

@@ -1,2 +1,3 @@
 - `npm i jsonwebtoken`
 - `npm i express cors mongodb dotenv`
+- `require('crypto').randomBytes(64).toString('hex')`
